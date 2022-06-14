@@ -1,5 +1,5 @@
 <template>
-    <div class="keyboard" v-show="this.enLanguage">
+    <div class="keyboard" v-show="this.enLanguage"> <!-- показывает компонент только если enLanguage true -->
         <div
             class="keyboard__key"
             :class="{ double:
@@ -12,20 +12,19 @@
             spaceBtn:
             key === 'Space'
             ? true : false,
-            keyboard__key_active:
-            (this.shiftKeyState && key.toLowerCase() === 'shift')
+            //фиксирует статус нажатия одной из кнопок ниже, одно нажатие - кнопка фиксируется как 'зажатая', второе - отпускает
+            keyboard__key_active:(this.shiftKeyState && key.toLowerCase() === 'shift')
             || (this.capsKeyState && key.toLowerCase() === 'capslock')
             || (this.altKeyState && key.toLowerCase() === 'alt')
             ? true : false,
             active: this.keyboardKeyPush === this.key ? true : false,
             }"
-            :key="key"
             @click="keyEvent"
-            @keyup="keyPush"
             v-for="key in engKeys"
+            :key="key"
             >
-            {{ (key === 'Shift'
-            || key === 'Backspace'
+            <!-- начальный рендер всех букв в маленьком регистре, системных кнопок - с большой буквы -->
+            {{ (key === 'Shift'|| key === 'Backspace'
             || key === 'CapsLock'
             || key === 'Ctrl'
             || key === 'Enter'
@@ -63,11 +62,9 @@
             ? true : false,
             active: this.keyboardKeyPush === this.key ? true : false,
             }"
-            :capsKeyState="capsKeyState"
-            :key="key"
             @click="keyEvent"
-            @keyup="keyPush"
             v-for="key in ruKeys"
+            :key="key"
             >
             {{ (key === 'Shift'
             || key === 'Backspace'
@@ -111,21 +108,41 @@
             altKeyState: {
                 type: Boolean,
             },
-            keyboardKeyPush: {
-                type: String,
-            },
         },
         data() {
             return {
                 keys: this.enLanguage ? this.engKeys : this.ruKeys,
+                keyboardKeyPush: '',
             }
         },
         methods: {
             keyEvent(key) {
-                this.$emit('keydown', key.target.innerHTML);
+                // клик отдаст объект, нажатие клавиши - строку
+                typeof(key) === 'string' ? this.$emit('keydown', key) : this.$emit('keydown', key.target.innerHTML);
+            },
+            keyboardEvent(e) {
+            typeof(e) !== 'string' ? e = e.key : e;
+            let eventKeys = document.querySelectorAll('.keyboard__key');
+            let eventKey;
+            // ищем на экранной клавиатуре нажатую клавишу и вешаем класс active
+            eventKeys.forEach(item => {
+                if(item.textContent === e) {
+                    eventKey = item;
+                }
+            });
+            eventKey.classList.add('active');
+            e.toLowerCase() === 'control' ? e = 'ctrl' : e;
+            this.keyboardKeyPush = e;
+            this.keyEvent(e);
+            this.keyboardKeyPush = '';
+            setTimeout(() => {
+                eventKey.classList.remove('active');
+            }, 300);
             },
         },
-
+        mounted() {
+            document.addEventListener('keyup', this.keyboardEvent)
+        }
     };
 </script>
 

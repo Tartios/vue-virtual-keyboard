@@ -9,7 +9,6 @@
     :capsKeyState="capsKeyState"
     :enLanguage="enLanguage"
     :altKeyState="altKeyState"
-    :keyboardKeyPush="keyboardKeyPush"
     />
   </div>
 </template>
@@ -30,11 +29,11 @@ export default {
       ruKeys: ruKeys,
       contentArray: [],
       areaContent: '',
+      // служат для фиксации нажатия соответствующих клавиш и переключения языка
       shiftKeyState: false,
       capsKeyState: false,
       enLanguage: true,
       altKeyState: false,
-      keyboardKeyPush: '',
     }
   },
   methods: {
@@ -101,17 +100,7 @@ export default {
           this.areaContent = this.areaContent + e;
       }
     },
-    keyboardEvent(e) {
-      typeof(e) !== 'string' ? e = e.key : e;
-      e.toLowerCase() === 'control' ? e = 'ctrl' : e;
-      this.keyboardKeyPush = e;
-      this.keyEvent(e);
-      this.keyboardKeyPush = '';
-    },
   },
-  mounted() {
-    document.addEventListener('keyup', this.keyboardEvent)
-  }
 }
 </script>
 
