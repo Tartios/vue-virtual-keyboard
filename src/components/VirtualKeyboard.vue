@@ -150,6 +150,7 @@
 .keyboard {
     display: flex;
     flex-wrap: wrap;
+    margin: 0 auto;
     width: 1030px;
     padding: 10px;
 }
